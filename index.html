@@ -2,145 +2,186 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Cyber Arcade | Cyber Saguaros</title>
+  <title>Cyber Jeopardy | Cyber Saguaros</title>
   <style>
+    :root {
+      --mocha-bg: #1e1e2e;
+      --mocha-surface: #313244;
+      --mocha-text: #cdd6f4;
+      --mocha-accent: #cba6f7;
+      --mocha-green: #a6e3a1;
+      --mocha-red: #f38ba8;
+    }
     body {
-      background-color: #0a0a0a;
-      color: #00ff88;
+      background-color: var(--mocha-bg);
+      color: var(--mocha-text);
       font-family: 'Courier New', Courier, monospace;
       padding: 20px;
     }
     h1, h2 {
-      color: #00e676;
+      color: var(--mocha-accent);
     }
-    .terminal-box {
-      border: 2px solid #00ff88;
+    .jeopardy-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .jeopardy-cell {
+      background-color: var(--mocha-surface);
+      border: 2px solid var(--mocha-accent);
+      color: var(--mocha-accent);
+      font-size: 20px;
+      font-weight: bold;
       padding: 20px;
-      margin-bottom: 20px;
-      background-color: #111;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
     }
-    button {
-      background-color: #00ff88;
-      color: black;
+    .jeopardy-cell:hover {
+      background-color: var(--mocha-accent);
+      color: var(--mocha-bg);
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      padding-top: 100px;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.9);
+    }
+    .modal-content {
+      background-color: var(--mocha-surface);
+      color: var(--mocha-text);
+      margin: auto;
+      padding: 20px;
+      border: 2px solid var(--mocha-accent);
+      width: 80%;
+    }
+    .modal input {
+      width: 100%;
+      padding: 10px;
+      background-color: var(--mocha-bg);
+      border: 1px solid var(--mocha-accent);
+      color: var(--mocha-text);
+      margin-top: 10px;
+    }
+    .modal button {
+      background-color: var(--mocha-accent);
+      color: var(--mocha-bg);
+      padding: 10px;
       border: none;
-      padding: 10px 15px;
+      margin-top: 10px;
       cursor: pointer;
       font-weight: bold;
-      margin-top: 10px;
     }
-    .result {
-      margin-top: 10px;
+    .score {
+      margin-top: 20px;
+      font-size: 18px;
       font-weight: bold;
-    }
-    input {
-      background-color: #000;
-      border: 1px solid #00ff88;
-      color: #00ff88;
-      padding: 5px;
-      width: 100%;
-    }
-    .correct {
-      color: #00e676;
-    }
-    .wrong {
-      color: #ff5252;
     }
   </style>
 </head>
 <body>
+  <h1>Cyber Jeopardy</h1>
+  <p>Select a question to test your cybersecurity knowledge.</p>
+  <div class="score">Score: <span id="score">0</span></div>
 
-  <h1>Cyber Arcade</h1>
-  <p>Welcome, agent. Hone your skills with these rapid-fire cyber games. Green means go.</p>
+  <div class="jeopardy-grid" id="grid"></div>
 
-  <!-- Game 1: Base64 Decode -->
-  <div class="terminal-box">
-    <h2>🧠 Base64 Decode</h2>
-    <p>Decode this: <code>U2FndWFyb3MgU3Ryb25nIQ==</code></p>
-    <input type="text" id="decodeInput" placeholder="Your answer here">
-    <button onclick="checkDecode()">Submit</button>
-    <div class="result" id="decodeResult"></div>
-  </div>
-
-  <!-- Game 2: Hash Identification -->
-  <div class="terminal-box">
-    <h2>🔍 Hash Identifier</h2>
-    <p>Which algorithm is this hash likely from?<br><code>5f4dcc3b5aa765d61d8327deb882cf99</code></p>
-    <input type="text" id="hashInput" placeholder="md5 / sha1 / sha256 / etc.">
-    <button onclick="checkHash()">Submit</button>
-    <div class="result" id="hashResult"></div>
-  </div>
-
-  <!-- Game 3: Spot the Vuln -->
-  <div class="terminal-box">
-    <h2>🛡️ Spot the Vulnerability</h2>
-    <p>What's wrong with this code?<br><code>password = input("Enter password: ")<br>if password == "admin123":</code></p>
-    <input type="text" id="vulnInput" placeholder="Describe the vulnerability">
-    <button onclick="checkVuln()">Submit</button>
-    <div class="result" id="vulnResult"></div>
-  </div>
-
-  <!-- Game 4: Cyber Trivia -->
-  <div class="terminal-box">
-    <h2>📚 Cyber Trivia</h2>
-    <p>Which tool is used for network packet capturing?<br>
-      a) Nmap<br>
-      b) Wireshark<br>
-      c) Hydra<br>
-      d) Nikto</p>
-    <input type="text" id="triviaInput" placeholder="a / b / c / d">
-    <button onclick="checkTrivia()">Submit</button>
-    <div class="result" id="triviaResult"></div>
+  <div id="questionModal" class="modal">
+    <div class="modal-content">
+      <h2 id="modalTitle"></h2>
+      <p id="modalQuestion"></p>
+      <input type="text" id="modalAnswer" placeholder="Enter your answer">
+      <button onclick="submitAnswer()">Submit</button>
+      <p id="feedback"></p>
+    </div>
   </div>
 
   <script>
-    function checkDecode() {
-      const answer = document.getElementById('decodeInput').value.trim();
-      const result = document.getElementById('decodeResult');
-      if (answer.toLowerCase() === 'saguaros strong!') {
-        result.textContent = 'Correct!';
-        result.className = 'result correct';
+    const questions = [
+      { category: 'Crypto', value: 100, question: 'Decode this: U2FndWFyb3MgU3Ryb25nIQ==', answer: 'saguaros strong' },
+      { category: 'Crypto', value: 200, question: 'What algorithm produced this hash? 5f4dcc3b5aa765d61d8327deb882cf99', answer: 'md5' },
+      { category: 'Web', value: 100, question: 'What's the flaw in: password = input("Enter password:") if password == "admin123"?', answer: 'hardcoded' },
+      { category: 'Trivia', value: 100, question: 'Which tool is used for packet capture?
+a) Nmap
+b) Wireshark
+c) Hydra
+d) Nikto', answer: 'b' },
+      { category: 'Regex', value: 100, question: 'What regex matches an IPv4 address?', answer: 'ip regex' },
+      { category: 'Binary', value: 100, question: 'Convert 1101 to decimal.', answer: '13' },
+      { category: 'Ports', value: 100, question: 'What service uses port 22?', answer: 'ssh' },
+      { category: 'Linux', value: 100, question: 'What does chmod +x do?', answer: 'make executable' }
+    ];
+
+    const scoreElem = document.getElementById('score');
+    const grid = document.getElementById('grid');
+    const modal = document.getElementById('questionModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalQuestion = document.getElementById('modalQuestion');
+    const modalAnswer = document.getElementById('modalAnswer');
+    const feedback = document.getElementById('feedback');
+
+    let currentQ = null;
+    let score = 0;
+
+    const categories = [...new Set(questions.map(q => q.category))];
+    const categoryMap = {};
+    categories.forEach(cat => categoryMap[cat] = []);
+    questions.forEach(q => categoryMap[q.category].push(q));
+
+    function buildGrid() {
+      categories.forEach(cat => {
+        categoryMap[cat].forEach(q => {
+          const cell = document.createElement('div');
+          cell.className = 'jeopardy-cell';
+          cell.textContent = `${cat} - ${q.value}`;
+          cell.onclick = () => openQuestion(q, cell);
+          grid.appendChild(cell);
+        });
+      });
+    }
+
+    function openQuestion(q, cell) {
+      currentQ = { ...q, cell };
+      modalTitle.textContent = `${q.category} - ${q.value}`;
+      modalQuestion.textContent = q.question;
+      modalAnswer.value = '';
+      feedback.textContent = '';
+      modal.style.display = 'block';
+    }
+
+    function submitAnswer() {
+      const userAns = modalAnswer.value.trim().toLowerCase();
+      if (userAns.includes(currentQ.answer.toLowerCase())) {
+        score += currentQ.value;
+        scoreElem.textContent = score;
+        feedback.textContent = 'Correct!';
+        feedback.style.color = 'var(--mocha-green)';
+        currentQ.cell.style.backgroundColor = 'var(--mocha-green)';
+        currentQ.cell.style.color = 'var(--mocha-bg)';
+        currentQ.cell.onclick = null;
       } else {
-        result.textContent = 'Wrong. Try again.';
-        result.className = 'result wrong';
+        feedback.textContent = 'Incorrect.';
+        feedback.style.color = 'var(--mocha-red)';
+      }
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 2000);
+    }
+
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = 'none';
       }
     }
 
-    function checkHash() {
-      const answer = document.getElementById('hashInput').value.trim().toLowerCase();
-      const result = document.getElementById('hashResult');
-      if (answer === 'md5') {
-        result.textContent = 'Correct!';
-        result.className = 'result correct';
-      } else {
-        result.textContent = 'Incorrect hash guess.';
-        result.className = 'result wrong';
-      }
-    }
-
-    function checkVuln() {
-      const answer = document.getElementById('vulnInput').value.toLowerCase();
-      const result = document.getElementById('vulnResult');
-      if (answer.includes('hardcoded') || answer.includes('plaintext')) {
-        result.textContent = 'Correct! Hardcoded password is a bad practice.';
-        result.className = 'result correct';
-      } else {
-        result.textContent = 'Close, but try to be more specific.';
-        result.className = 'result wrong';
-      }
-    }
-
-    function checkTrivia() {
-      const answer = document.getElementById('triviaInput').value.trim().toLowerCase();
-      const result = document.getElementById('triviaResult');
-      if (answer === 'b') {
-        result.textContent = 'Correct! Wireshark is the answer.';
-        result.className = 'result correct';
-      } else {
-        result.textContent = 'Not quite.';
-        result.className = 'result wrong';
-      }
-    }
+    buildGrid();
   </script>
-
 </body>
 </html>
