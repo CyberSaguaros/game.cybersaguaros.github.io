@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cyber Arcade | Cyber Saguaros</title>
+  <style>
+    body {
+      background-color: #0a0a0a;
+      color: #00ff88;
+      font-family: 'Courier New', Courier, monospace;
+      padding: 20px;
+    }
+    h1, h2 {
+      color: #00e676;
+    }
+    .terminal-box {
+      border: 2px solid #00ff88;
+      padding: 20px;
+      margin-bottom: 20px;
+      background-color: #111;
+    }
+    button {
+      background-color: #00ff88;
+      color: black;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .result {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input {
+      background-color: #000;
+      border: 1px solid #00ff88;
+      color: #00ff88;
+      padding: 5px;
+      width: 100%;
+    }
+    .correct {
+      color: #00e676;
+    }
+    .wrong {
+      color: #ff5252;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Cyber Arcade</h1>
+  <p>Welcome, agent. Hone your skills with these rapid-fire cyber games. Green means go.</p>
+
+  <!-- Game 1: Base64 Decode -->
+  <div class="terminal-box">
+    <h2>🧠 Base64 Decode</h2>
+    <p>Decode this: <code>U2FndWFyb3MgU3Ryb25nIQ==</code></p>
+    <input type="text" id="decodeInput" placeholder="Your answer here">
+    <button onclick="checkDecode()">Submit</button>
+    <div class="result" id="decodeResult"></div>
+  </div>
+
+  <!-- Game 2: Hash Identification -->
+  <div class="terminal-box">
+    <h2>🔍 Hash Identifier</h2>
+    <p>Which algorithm is this hash likely from?<br><code>5f4dcc3b5aa765d61d8327deb882cf99</code></p>
+    <input type="text" id="hashInput" placeholder="md5 / sha1 / sha256 / etc.">
+    <button onclick="checkHash()">Submit</button>
+    <div class="result" id="hashResult"></div>
+  </div>
+
+  <!-- Game 3: Spot the Vuln -->
+  <div class="terminal-box">
+    <h2>🛡️ Spot the Vulnerability</h2>
+    <p>What's wrong with this code?<br><code>password = input("Enter password: ")<br>if password == "admin123":</code></p>
+    <input type="text" id="vulnInput" placeholder="Describe the vulnerability">
+    <button onclick="checkVuln()">Submit</button>
+    <div class="result" id="vulnResult"></div>
+  </div>
+
+  <!-- Game 4: Cyber Trivia -->
+  <div class="terminal-box">
+    <h2>📚 Cyber Trivia</h2>
+    <p>Which tool is used for network packet capturing?<br>
+      a) Nmap<br>
+      b) Wireshark<br>
+      c) Hydra<br>
+      d) Nikto</p>
+    <input type="text" id="triviaInput" placeholder="a / b / c / d">
+    <button onclick="checkTrivia()">Submit</button>
+    <div class="result" id="triviaResult"></div>
+  </div>
+
+  <script>
+    function checkDecode() {
+      const answer = document.getElementById('decodeInput').value.trim();
+      const result = document.getElementById('decodeResult');
+      if (answer.toLowerCase() === 'saguaros strong!') {
+        result.textContent = 'Correct!';
+        result.className = 'result correct';
+      } else {
+        result.textContent = 'Wrong. Try again.';
+        result.className = 'result wrong';
+      }
+    }
+
+    function checkHash() {
+      const answer = document.getElementById('hashInput').value.trim().toLowerCase();
+      const result = document.getElementById('hashResult');
+      if (answer === 'md5') {
+        result.textContent = 'Correct!';
+        result.className = 'result correct';
+      } else {
+        result.textContent = 'Incorrect hash guess.';
+        result.className = 'result wrong';
+      }
+    }
+
+    function checkVuln() {
+      const answer = document.getElementById('vulnInput').value.toLowerCase();
+      const result = document.getElementById('vulnResult');
+      if (answer.includes('hardcoded') || answer.includes('plaintext')) {
+        result.textContent = 'Correct! Hardcoded password is a bad practice.';
+        result.className = 'result correct';
+      } else {
+        result.textContent = 'Close, but try to be more specific.';
+        result.className = 'result wrong';
+      }
+    }
+
+    function checkTrivia() {
+      const answer = document.getElementById('triviaInput').value.trim().toLowerCase();
+      const result = document.getElementById('triviaResult');
+      if (answer === 'b') {
+        result.textContent = 'Correct! Wireshark is the answer.';
+        result.className = 'result correct';
+      } else {
+        result.textContent = 'Not quite.';
+        result.className = 'result wrong';
+      }
+    }
+  </script>
+
+</body>
+</html>
