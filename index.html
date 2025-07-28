@@ -11,6 +11,7 @@
       --mocha-accent: #cba6f7;
       --mocha-green: #a6e3a1;
       --mocha-red: #f38ba8;
+      --mocha-yellow: #f9e2af;
     }
     body {
       background-color: var(--mocha-bg);
@@ -23,7 +24,7 @@
     }
     .jeopardy-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 10px;
       margin-top: 20px;
     }
@@ -112,16 +113,43 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
+      const categories = ['Crypto', 'Web', 'Trivia', 'Ports', 'OSINT'];
       const questions = [
-        { category: 'Crypto', value: 100, question: 'Decode this: U2FndWFyb3MgU3Ryb25nIQ==', answer: 'saguaros strong' },
-        { category: 'Crypto', value: 200, question: 'What algorithm produced this hash? 5f4dcc3b5aa765d61d8327deb882cf99', answer: 'md5' },
-        { category: 'Web', value: 100, question: 'What\'s the flaw in: password = input("Enter password:") if password == "admin123"?', answer: 'hardcoded' },
-        { category: 'Web', value: 200, question: 'What is the HTTP method used for retrieving data?', answer: 'get' },
-        { category: 'Trivia', value: 100, question: 'Which tool is used for packet capture?\na) Nmap\nb) Wireshark\nc) Hydra\nd) Nikto', answer: 'b' },
-        { category: 'Trivia', value: 200, question: 'Who created Metasploit?', answer: 'hd moore' },
-        { category: 'Ports', value: 100, question: 'What service uses port 22?', answer: 'ssh' },
-        { category: 'Ports', value: 200, question: 'What port is used for HTTPS?', answer: '443' }
+        { category: 'Crypto', value: 100, question: 'What is the full form of AES?', answer: 'advanced encryption standard' },
+        { category: 'Crypto', value: 200, question: 'Which cipher uses the same key for encryption and decryption?', answer: 'symmetric' },
+        { category: 'Crypto', value: 300, question: 'What type of cipher is the Caesar cipher?', answer: 'substitution' },
+        { category: 'Crypto', value: 400, question: 'What is the purpose of hashing?', answer: 'integrity' },
+        { category: 'Crypto', value: 500, question: 'What does RSA stand for?', answer: 'rivest shamir adleman' },
+
+        { category: 'Web', value: 100, question: 'What does XSS stand for?', answer: 'cross site scripting' },
+        { category: 'Web', value: 200, question: 'What HTTP method is used to send data to the server?', answer: 'post' },
+        { category: 'Web', value: 300, question: 'What type of vulnerability is SQL injection?', answer: 'injection' },
+        { category: 'Web', value: 400, question: 'What port does HTTPS use?', answer: '443' },
+        { category: 'Web', value: 500, question: 'What does CSRF stand for?', answer: 'cross site request forgery' },
+
+        { category: 'Trivia', value: 100, question: 'What does CTF stand for?', answer: 'capture the flag' },
+        { category: 'Trivia', value: 200, question: 'What’s the mascot of Cyber Saguaros?', answer: 'saguaro' },
+        { category: 'Trivia', value: 300, question: 'What is DEFCON?', answer: 'hacker conference' },
+        { category: 'Trivia', value: 400, question: 'What programming language is commonly used in exploits?', answer: 'python' },
+        { category: 'Trivia', value: 500, question: 'Who founded the EFF?', answer: 'john perry barlow' },
+
+        { category: 'Ports', value: 100, question: 'What service runs on port 22?', answer: 'ssh' },
+        { category: 'Ports', value: 200, question: 'What port does DNS typically use?', answer: '53' },
+        { category: 'Ports', value: 300, question: 'Which port is used for SMTP?', answer: '25' },
+        { category: 'Ports', value: 400, question: 'What port is used by MySQL?', answer: '3306' },
+        { category: 'Ports', value: 500, question: 'What is the port number for RDP?', answer: '3389' },
+
+        { category: 'OSINT', value: 100, question: 'What does OSINT stand for?', answer: 'open source intelligence' },
+        { category: 'OSINT', value: 200, question: 'What tool would you use to enumerate subdomains?', answer: 'amass' },
+        { category: 'OSINT', value: 300, question: 'What site allows for reverse image searching?', answer: 'tineye' },
+        { category: 'OSINT', value: 400, question: 'What platform is used to archive deleted web pages?', answer: 'wayback machine' },
+        { category: 'OSINT', value: 500, question: 'What is the name of the tool that automates OSINT investigations and visualizes data?', answer: 'maltego' },
       ];
+
+      // Add a Daily Double!
+      const dailyDoubleIndex = Math.floor(Math.random() * questions.length);
+      questions[dailyDoubleIndex].question = '🌵 DAILY DOUBLE 🌵\nCyber Saguaros bonus question! What university do we represent?';
+      questions[dailyDoubleIndex].answer = 'university of arizona';
 
       const scoreElem = document.getElementById('score');
       const grid = document.getElementById('grid');
@@ -134,10 +162,7 @@
       let currentQ = null;
       let score = 0;
 
-      const categories = ['Crypto', 'Web', 'Trivia', 'Ports'];
-      const categoryMap = {
-        Crypto: [], Web: [], Trivia: [], Ports: []
-      };
+      const categoryMap = Object.fromEntries(categories.map(cat => [cat, []]));
       questions.forEach(q => categoryMap[q.category].push(q));
 
       function buildGrid() {
@@ -148,8 +173,7 @@
           grid.appendChild(header);
         });
 
-        const maxRows = Math.max(...categories.map(cat => categoryMap[cat].length));
-
+        const maxRows = 5;
         for (let i = 0; i < maxRows; i++) {
           categories.forEach(cat => {
             const q = categoryMap[cat][i];
