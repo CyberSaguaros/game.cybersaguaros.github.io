@@ -111,95 +111,98 @@
   </div>
 
   <script>
-    const questions = [
-      { category: 'Crypto', value: 100, question: 'Decode this: U2FndWFyb3MgU3Ryb25nIQ==', answer: 'saguaros strong' },
-      { category: 'Crypto', value: 200, question: 'What algorithm produced this hash? 5f4dcc3b5aa765d61d8327deb882cf99', answer: 'md5' },
-      { category: 'Web', value: 100, question: 'What's the flaw in: password = input("Enter password:") if password == "admin123"?', answer: 'hardcoded' },
-      { category: 'Web', value: 200, question: 'What is the HTTP method used for retrieving data?', answer: 'get' },
-      { category: 'Trivia', value: 100, question: 'Which tool is used for packet capture?\na) Nmap\nb) Wireshark\nc) Hydra\nd) Nikto', answer: 'b' },
-      { category: 'Trivia', value: 200, question: 'Who created Metasploit?', answer: 'hd moore' },
-      { category: 'Ports', value: 100, question: 'What service uses port 22?', answer: 'ssh' },
-      { category: 'Ports', value: 200, question: 'What port is used for HTTPS?', answer: '443' }
-    ];
+    document.addEventListener("DOMContentLoaded", function () {
+      const questions = [
+        { category: 'Crypto', value: 100, question: 'Decode this: U2FndWFyb3MgU3Ryb25nIQ==', answer: 'saguaros strong' },
+        { category: 'Crypto', value: 200, question: 'What algorithm produced this hash? 5f4dcc3b5aa765d61d8327deb882cf99', answer: 'md5' },
+        { category: 'Web', value: 100, question: 'What\'s the flaw in: password = input("Enter password:") if password == "admin123"?', answer: 'hardcoded' },
+        { category: 'Web', value: 200, question: 'What is the HTTP method used for retrieving data?', answer: 'get' },
+        { category: 'Trivia', value: 100, question: 'Which tool is used for packet capture?\na) Nmap\nb) Wireshark\nc) Hydra\nd) Nikto', answer: 'b' },
+        { category: 'Trivia', value: 200, question: 'Who created Metasploit?', answer: 'hd moore' },
+        { category: 'Ports', value: 100, question: 'What service uses port 22?', answer: 'ssh' },
+        { category: 'Ports', value: 200, question: 'What port is used for HTTPS?', answer: '443' }
+      ];
 
-    const scoreElem = document.getElementById('score');
-    const grid = document.getElementById('grid');
-    const modal = document.getElementById('questionModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalQuestion = document.getElementById('modalQuestion');
-    const modalAnswer = document.getElementById('modalAnswer');
-    const feedback = document.getElementById('feedback');
+      const scoreElem = document.getElementById('score');
+      const grid = document.getElementById('grid');
+      const modal = document.getElementById('questionModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalQuestion = document.getElementById('modalQuestion');
+      const modalAnswer = document.getElementById('modalAnswer');
+      const feedback = document.getElementById('feedback');
 
-    let currentQ = null;
-    let score = 0;
+      let currentQ = null;
+      let score = 0;
 
-    const categories = [...new Set(questions.map(q => q.category))];
-    const categoryMap = {};
-    categories.forEach(cat => categoryMap[cat] = []);
-    questions.forEach(q => categoryMap[q.category].push(q));
+      const categories = ['Crypto', 'Web', 'Trivia', 'Ports'];
+      const categoryMap = {
+        Crypto: [], Web: [], Trivia: [], Ports: []
+      };
+      questions.forEach(q => categoryMap[q.category].push(q));
 
-    function buildGrid() {
-      // Header row
-      categories.forEach(cat => {
-        const header = document.createElement('div');
-        header.className = 'jeopardy-header';
-        header.textContent = cat;
-        grid.appendChild(header);
-      });
-
-      const maxRows = Math.max(...Object.values(categoryMap).map(arr => arr.length));
-
-      for (let i = 0; i < maxRows; i++) {
+      function buildGrid() {
         categories.forEach(cat => {
-          const cell = document.createElement('div');
-          const q = categoryMap[cat][i];
-          if (q) {
-            cell.className = 'jeopardy-cell';
-            cell.textContent = `$${q.value}`;
-            cell.onclick = () => openQuestion(q, cell);
-          } else {
-            cell.style.visibility = 'hidden';
-          }
-          grid.appendChild(cell);
+          const header = document.createElement('div');
+          header.className = 'jeopardy-header';
+          header.textContent = cat;
+          grid.appendChild(header);
         });
+
+        const maxRows = Math.max(...categories.map(cat => categoryMap[cat].length));
+
+        for (let i = 0; i < maxRows; i++) {
+          categories.forEach(cat => {
+            const q = categoryMap[cat][i];
+            const cell = document.createElement('div');
+            if (q) {
+              cell.className = 'jeopardy-cell';
+              cell.textContent = `$${q.value}`;
+              cell.onclick = () => openQuestion(q, cell);
+            } else {
+              cell.className = 'jeopardy-cell';
+              cell.style.visibility = 'hidden';
+            }
+            grid.appendChild(cell);
+          });
+        }
       }
-    }
 
-    function openQuestion(q, cell) {
-      currentQ = { ...q, cell };
-      modalTitle.textContent = `${q.category} - $${q.value}`;
-      modalQuestion.textContent = q.question;
-      modalAnswer.value = '';
-      feedback.textContent = '';
-      modal.style.display = 'block';
-    }
-
-    function submitAnswer() {
-      const userAns = modalAnswer.value.trim().toLowerCase();
-      if (userAns.includes(currentQ.answer.toLowerCase())) {
-        score += currentQ.value;
-        scoreElem.textContent = score;
-        feedback.textContent = 'Correct!';
-        feedback.style.color = 'var(--mocha-green)';
-        currentQ.cell.style.backgroundColor = 'var(--mocha-green)';
-        currentQ.cell.style.color = 'var(--mocha-bg)';
-        currentQ.cell.onclick = null;
-      } else {
-        feedback.textContent = 'Incorrect.';
-        feedback.style.color = 'var(--mocha-red)';
+      function openQuestion(q, cell) {
+        currentQ = { ...q, cell };
+        modalTitle.textContent = `${q.category} - $${q.value}`;
+        modalQuestion.textContent = q.question;
+        modalAnswer.value = '';
+        feedback.textContent = '';
+        modal.style.display = 'block';
       }
-      setTimeout(() => {
-        modal.style.display = 'none';
-      }, 2000);
-    }
 
-    window.onclick = function(event) {
-      if (event.target == modal) {
-        modal.style.display = 'none';
-      }
-    }
+      window.submitAnswer = function () {
+        const userAns = modalAnswer.value.trim().toLowerCase();
+        if (userAns.includes(currentQ.answer.toLowerCase())) {
+          score += currentQ.value;
+          scoreElem.textContent = score;
+          feedback.textContent = 'Correct!';
+          feedback.style.color = 'var(--mocha-green)';
+          currentQ.cell.style.backgroundColor = 'var(--mocha-green)';
+          currentQ.cell.style.color = 'var(--mocha-bg)';
+          currentQ.cell.onclick = null;
+        } else {
+          feedback.textContent = 'Incorrect.';
+          feedback.style.color = 'var(--mocha-red)';
+        }
+        setTimeout(() => {
+          modal.style.display = 'none';
+        }, 2000);
+      };
 
-    buildGrid();
+      window.onclick = function (event) {
+        if (event.target == modal) {
+          modal.style.display = 'none';
+        }
+      };
+
+      buildGrid();
+    });
   </script>
 </body>
 </html>
