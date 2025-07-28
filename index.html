@@ -24,8 +24,15 @@
     .jeopardy-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
+      gap: 10px;
       margin-top: 20px;
+    }
+    .jeopardy-header {
+      text-align: center;
+      font-weight: bold;
+      background-color: var(--mocha-accent);
+      color: var(--mocha-bg);
+      padding: 15px;
     }
     .jeopardy-cell {
       background-color: var(--mocha-surface);
@@ -108,15 +115,11 @@
       { category: 'Crypto', value: 100, question: 'Decode this: U2FndWFyb3MgU3Ryb25nIQ==', answer: 'saguaros strong' },
       { category: 'Crypto', value: 200, question: 'What algorithm produced this hash? 5f4dcc3b5aa765d61d8327deb882cf99', answer: 'md5' },
       { category: 'Web', value: 100, question: 'What's the flaw in: password = input("Enter password:") if password == "admin123"?', answer: 'hardcoded' },
-      { category: 'Trivia', value: 100, question: 'Which tool is used for packet capture?
-a) Nmap
-b) Wireshark
-c) Hydra
-d) Nikto', answer: 'b' },
-      { category: 'Regex', value: 100, question: 'What regex matches an IPv4 address?', answer: 'ip regex' },
-      { category: 'Binary', value: 100, question: 'Convert 1101 to decimal.', answer: '13' },
+      { category: 'Web', value: 200, question: 'What is the HTTP method used for retrieving data?', answer: 'get' },
+      { category: 'Trivia', value: 100, question: 'Which tool is used for packet capture?\na) Nmap\nb) Wireshark\nc) Hydra\nd) Nikto', answer: 'b' },
+      { category: 'Trivia', value: 200, question: 'Who created Metasploit?', answer: 'hd moore' },
       { category: 'Ports', value: 100, question: 'What service uses port 22?', answer: 'ssh' },
-      { category: 'Linux', value: 100, question: 'What does chmod +x do?', answer: 'make executable' }
+      { category: 'Ports', value: 200, question: 'What port is used for HTTPS?', answer: '443' }
     ];
 
     const scoreElem = document.getElementById('score');
@@ -136,20 +139,35 @@ d) Nikto', answer: 'b' },
     questions.forEach(q => categoryMap[q.category].push(q));
 
     function buildGrid() {
+      // Header row
       categories.forEach(cat => {
-        categoryMap[cat].forEach(q => {
+        const header = document.createElement('div');
+        header.className = 'jeopardy-header';
+        header.textContent = cat;
+        grid.appendChild(header);
+      });
+
+      const maxRows = Math.max(...Object.values(categoryMap).map(arr => arr.length));
+
+      for (let i = 0; i < maxRows; i++) {
+        categories.forEach(cat => {
           const cell = document.createElement('div');
-          cell.className = 'jeopardy-cell';
-          cell.textContent = `${cat} - ${q.value}`;
-          cell.onclick = () => openQuestion(q, cell);
+          const q = categoryMap[cat][i];
+          if (q) {
+            cell.className = 'jeopardy-cell';
+            cell.textContent = `$${q.value}`;
+            cell.onclick = () => openQuestion(q, cell);
+          } else {
+            cell.style.visibility = 'hidden';
+          }
           grid.appendChild(cell);
         });
-      });
+      }
     }
 
     function openQuestion(q, cell) {
       currentQ = { ...q, cell };
-      modalTitle.textContent = `${q.category} - ${q.value}`;
+      modalTitle.textContent = `${q.category} - $${q.value}`;
       modalQuestion.textContent = q.question;
       modalAnswer.value = '';
       feedback.textContent = '';
